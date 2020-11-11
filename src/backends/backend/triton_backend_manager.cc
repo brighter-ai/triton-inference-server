@@ -26,7 +26,13 @@
 
 #include "src/backends/backend/triton_backend_manager.h"
 
+#ifdef _WIN32
+// suppress the min and max definitions in Windef.h.
+#define NOMINMAX
+#include <Windows.h>
+#else
 #include <dlfcn.h>
+#endif
 #include "src/backends/backend/triton_memory_manager.h"
 #include "src/core/logging.h"
 #include "src/core/server_message.h"
