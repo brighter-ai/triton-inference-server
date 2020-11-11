@@ -103,7 +103,7 @@ GetEntrypoint(
   *befn = nullptr;
 #ifdef _WIN32
   void* fn = GetProcAddress((HMODULE)handle, name.c_str());
-  if ((*fn == nullptr)  && !optional) {
+  if ((fn == nullptr)  && !optional) {
     LPSTR err_buffer = nullptr;
     size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                                 NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&err_buffer, 0, NULL);
