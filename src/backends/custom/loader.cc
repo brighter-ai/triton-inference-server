@@ -47,9 +47,15 @@ OpenLibraryHandle(const std::string& path, void** handle)
   // https://docs.microsoft.com/en-us/windows/win32/winprog/windows-data-types
   *handle = LoadLibrary(path.c_str());
   if (*handle == nullptr) {
+    LPSTR err_buffer = nullptr;
+    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                 NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&err_buffer, 0, NULL);
+    std::string errstr(err_buffer, size);
+    LocalFree(err_buffer);
+
     return Status(
         Status::Code::NOT_FOUND,
-        "unable to load custom library: " + std::string(GetLastError()));
+        "unable to load custom library: " + errstr);
   }
 #else
   *handle = dlopen(path.c_str(), RTLD_LAZY);
@@ -67,8 +73,13 @@ CloseLibraryHandle(void* handle)
 {
   if (handle != nullptr) {
 #ifdef _WIN32
-    if (FreeLibrary(handle) == 0) {
-      LOG_ERROR << "unable to unload custom library: " << GetLastError();
+    if (FreeLibrary((HMODULE)handle) == 0) {
+      LPSTR err_buffer = nullptr;
+      size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                  NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&err_buffer, 0, NULL);
+      std::string errstr(err_buffer, size);
+      LocalFree(err_buffer);
+      LOG_ERROR << "unable to unload custom library: " << errstr;
     }
 #else
     if (dlclose(handle) != 0) {
@@ -82,12 +93,17 @@ Status
 GetEntrypoint(void* handle, const std::string& name, void** fn)
 {
 #ifdef _WIN32
-  *fn = GetProcAddress(handle, name.c_str());
+  *fn = GetProcAddress((HMODULE)handle, name.c_str());
   if (*fn == nullptr) {
+    LPSTR err_buffer = nullptr;
+    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&err_buffer, 0, NULL);
+    std::string errstr(err_buffer, size);
+    LocalFree(err_buffer);
     return Status(
         Status::Code::NOT_FOUND,
         "unable to find '" + name +
-            "' entrypoint in custom library: " + std::string(GetLastError()));
+            "' entrypoint in custom library: " + errstr);
   }
 #else
   dlerror();
