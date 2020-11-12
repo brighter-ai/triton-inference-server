@@ -387,11 +387,14 @@ if (NOT WIN32)
     LINK_FLAGS "-Wl,--version-script libtritonserver.ldscript"
 enfif()
 )
+if (NOT WIN32)
 target_link_libraries(
   tritonserver
-if (NOT WIN32)
   PRIVATE dl
+)
 endif()
+target_link_libraries(
+  tritonserver
   PRIVATE triton-core-backendapi
   PRIVATE triton-core-serverapi
   PRIVATE triton-common-json
