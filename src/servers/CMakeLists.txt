@@ -26,6 +26,8 @@
 
 cmake_minimum_required (VERSION 3.18)
 
+find_package(re2 CONFIG REQUIRED)
+
 #
 # grpc endpoint
 #
