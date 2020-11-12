@@ -381,12 +381,17 @@ set_target_properties(
     BUILD_WITH_INSTALL_RPATH TRUE
     INSTALL_RPATH_USE_LINK_PATH FALSE
     INSTALL_RPATH "$\{ORIGIN\}:$\{ORIGIN\}/pytorch"
+# FIXME need to check how Windows exposes symbols
+if (NOT WIN32)
+    LINK_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libtritonserver.ldscript
+    LINK_FLAGS "-Wl,--version-script libtritonserver.ldscript"
+enfif()
 )
-#    LINK_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libtritonserver.ldscript
-#    LINK_FLAGS "-Wl,--version-script libtritonserver.ldscript"
 target_link_libraries(
   tritonserver
+if (NOT WIN32)
   PRIVATE dl
+endif()
   PRIVATE triton-core-backendapi
   PRIVATE triton-core-serverapi
   PRIVATE triton-common-json
