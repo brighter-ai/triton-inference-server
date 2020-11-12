@@ -141,7 +141,7 @@ if(${TRITON_ENABLE_HTTP} OR ${TRITON_ENABLE_METRICS})
     PRIVATE ${LIBEVENT_LIBRARIES}
     PRIVATE libevhtp::evhtp
     PRIVATE protobuf::libprotobuf
-    PRIVATE re2
+    PRIVATE re2::re2
     PRIVATE b64
   )
 endif() # TRITON_ENABLE_HTTP || TRITON_ENABLE_METRICS
@@ -453,7 +453,7 @@ if(${TRITON_ENABLE_S3})
   target_link_libraries(
     tritonserver
     PRIVATE aws-cpp-sdk-s3
-    PRIVATE re2
+    PRIVATE re2::re2
   )
 endif() # TRITON_ENABLE_S3
 
