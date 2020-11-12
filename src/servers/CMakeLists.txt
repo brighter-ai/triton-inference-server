@@ -139,8 +139,8 @@ if(${TRITON_ENABLE_HTTP} OR ${TRITON_ENABLE_METRICS})
     PRIVATE ${LIBEVENT_LIBRARIES}
     PRIVATE libevhtp::evhtp
     PRIVATE protobuf::libprotobuf
-    PRIVATE -lre2
-    PRIVATE -lb64
+    PRIVATE re2
+    PRIVATE b64
   )
 endif() # TRITON_ENABLE_HTTP || TRITON_ENABLE_METRICS
 
@@ -283,7 +283,7 @@ target_include_directories(simple PRIVATE ${CUDA_INCLUDE_DIRS})
 target_link_libraries(
   simple
   PUBLIC -L/usr/local/cuda/lib64/stubs
-  PUBLIC -lnvidia-ml
+  PUBLIC nvidia-ml
   PRIVATE ${CUDA_LIBRARIES}
 )
 endif() # TRITON_ENABLE_GPU
@@ -323,7 +323,7 @@ set_target_properties(
 target_link_libraries(
   memory_alloc
   PUBLIC -L/usr/local/cuda/lib64/stubs
-  PUBLIC -lnvidia-ml
+  PUBLIC nvidia-ml
   PRIVATE ${CUDA_LIBRARIES}
   PRIVATE triton-core-serverapi   # from repo-core
   PRIVATE tritonserver
@@ -381,12 +381,14 @@ set_target_properties(
     BUILD_WITH_INSTALL_RPATH TRUE
     INSTALL_RPATH_USE_LINK_PATH FALSE
     INSTALL_RPATH "$\{ORIGIN\}:$\{ORIGIN\}/pytorch"
+if (NOT WIN32)
     LINK_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libtritonserver.ldscript
     LINK_FLAGS "-Wl,--version-script libtritonserver.ldscript"
+endif()
 )
 target_link_libraries(
   tritonserver
-  PRIVATE -ldl
+  PRIVATE dl
   PRIVATE triton-core-backendapi
   PRIVATE triton-core-serverapi
   PRIVATE triton-common-json
@@ -398,8 +400,8 @@ target_link_libraries(
 if(${TRITON_ENABLE_TENSORRT})
   target_link_libraries(
     tritonserver
-    PUBLIC -lnvinfer
-    PUBLIC -lnvinfer_plugin
+    PUBLIC nvinfer
+    PUBLIC nvinfer_plugin
   )
 endif() # TRITON_ENABLE_TENSORRT
 
@@ -407,15 +409,15 @@ if(${TRITON_ENABLE_PYTORCH})
   target_link_libraries(
     tritonserver
     PUBLIC ${TRITON_EXTRA_LDFLAGS}
-    PUBLIC -ltorch
-    PUBLIC -ltorch_cpu
-    PUBLIC -ltorch_cuda
-    PUBLIC -ltorchvision
-    PUBLIC -lc10
-    PUBLIC -lc10_cuda
-    PUBLIC -lmkl_core
-    PUBLIC -lmkl_gnu_thread
-    PUBLIC -lmkl_intel_lp64
+    PUBLIC torch
+    PUBLIC torch_cpu
+    PUBLIC torch_cuda
+    PUBLIC torchvision
+    PUBLIC c10
+    PUBLIC c10_cuda
+    PUBLIC mkl_core
+    PUBLIC mkl_gnu_thread
+    PUBLIC mkl_intel_lp64
   )
 endif() # TRITON_ENABLE_PYTORCH
 
@@ -443,7 +445,7 @@ if(${TRITON_ENABLE_S3})
   target_link_libraries(
     tritonserver
     PRIVATE aws-cpp-sdk-s3
-    PRIVATE -lre2
+    PRIVATE re2
   )
 endif() # TRITON_ENABLE_S3
 
@@ -451,10 +453,10 @@ if(${TRITON_ENABLE_GPU})
   target_link_libraries(
     tritonserver
     PUBLIC -L/usr/local/cuda/lib64/stubs
-    PUBLIC -lnvidia-ml
+    PUBLIC nvidia-ml
     PRIVATE ${CUDA_LIBRARIES}
     PRIVATE -L${CNMEM_PATH}/lib
-    PRIVATE -lcnmem
+    PRIVATE cnmem
   )
 endif() # TRITON_ENABLE_GPU
 
